@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Glossarly</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Glossarly</h1>
+        <div class="controls">
+            <button id="toggleHighlight">Toggle Highlighting</button>
+            <div class="control-item">
+                <label for="googleDocsToggle">Google Docs Integration</label>
+                <input type="checkbox" id="googleDocsToggle">
+            </div>
+        </div>
+        <div class="term-manager">
+            <h2>Manage Terms</h2>
+            <div class="add-term">
+                <input type="text" id="newTerm" placeholder="Term">
+                <input type="text" id="newDefinition" placeholder="Definition">
+                <button id="addTerm">Add</button>
+            </div>
+            <div id="termsList"></div>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html> 
