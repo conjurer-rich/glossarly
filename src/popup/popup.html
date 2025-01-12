@@ -2,28 +2,88 @@
 <html>
 <head>
     <title>Glossarly</title>
-    <link rel="stylesheet" href="popup.css">
+    <style>
+        body {
+            width: 300px;
+            padding: 16px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        .term-item {
+            margin: 8px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .term {
+            font-weight: bold;
+        }
+
+        .definition {
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .delete-term {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            border: none;
+            background: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .delete-term:hover {
+            color: #f44336;
+        }
+
+        form {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        input, textarea {
+            width: 100%;
+            margin: 4px 0 12px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 8px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Glossarly</h1>
-        <div class="controls">
-            <button id="toggleHighlight">Toggle Highlighting</button>
-            <div class="control-item">
-                <label for="googleDocsToggle">Google Docs Integration</label>
-                <input type="checkbox" id="googleDocsToggle">
-            </div>
-        </div>
-        <div class="term-manager">
-            <h2>Manage Terms</h2>
-            <div class="add-term">
-                <input type="text" id="newTerm" placeholder="Term">
-                <input type="text" id="newDefinition" placeholder="Definition">
-                <button id="addTerm">Add</button>
-            </div>
-            <div id="termsList"></div>
-        </div>
-    </div>
+    <div id="termsList"></div>
+    
+    <form id="addTermForm">
+        <label for="termInput">Term:</label>
+        <input type="text" id="termInput" required>
+        
+        <label for="definitionInput">Definition:</label>
+        <textarea id="definitionInput" rows="3" required></textarea>
+        
+        <button type="submit">Add Term</button>
+    </form>
+
     <script src="popup.js"></script>
 </body>
 </html> 

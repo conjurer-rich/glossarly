@@ -5,6 +5,15 @@ class GoogleDocsHighlighter {
     this.terms = {};
     Logger.log("Initializing GoogleDocsHighlighter");
     this.init();
+
+    // Listen for term updates
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "termsUpdated") {
+        Logger.log("Received updated terms");
+        this.terms = message.terms;
+        this.highlightTerms();
+      }
+    });
   }
 
   async init() {
