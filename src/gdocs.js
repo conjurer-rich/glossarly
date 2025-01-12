@@ -4,7 +4,11 @@ class GoogleDocsHighlighter {
     this.documentContent = null;
     this.terms = {};
     Logger.log("Initializing GoogleDocsHighlighter");
-    this.init();
+
+    // Load initial terms
+    this.loadTerms().then(() => {
+      this.init();
+    });
 
     // Listen for term updates
     chrome.runtime.onMessage.addListener((message) => {
@@ -14,6 +18,18 @@ class GoogleDocsHighlighter {
         this.highlightTerms();
       }
     });
+  }
+
+  async loadTerms() {
+    try {
+      Logger.log("Loading terms from storage");
+      const storage = await chrome.storage.local.get("glossaryTerms");
+      this.terms = storage.glossaryTerms || {};
+      Logger.log("Loaded terms:", this.terms);
+    } catch (error) {
+      Logger.error("Error loading terms:", error);
+      this.terms = {};
+    }
   }
 
   async init() {
