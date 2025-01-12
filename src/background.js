@@ -68,7 +68,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 async function getDocumentContent(documentId) {
   try {
     console.log("Background: getting auth token...");
-    const token = await chrome.identity.getAuthToken({ interactive: true });
+    // Get token with correct format
+    const { token } = await chrome.identity.getAuthToken({
+      interactive: true,
+      scopes: ["https://www.googleapis.com/auth/documents.readonly"],
+    });
+
+    if (!token) {
+      throw new Error("Failed to get auth token");
+    }
 
     console.log("Background: making API request");
     const response = await fetch(
@@ -88,6 +96,13 @@ async function getDocumentContent(documentId) {
         statusText: response.statusText,
         error: errorText,
       });
+
+      // If token is invalid, remove it and throw error
+      if (response.status === 401) {
+        await chrome.identity.removeCachedAuthToken({ token });
+        throw new Error("Authentication failed - please try again");
+      }
+
       throw new Error(`API error: ${response.status} - ${errorText}`);
     }
 

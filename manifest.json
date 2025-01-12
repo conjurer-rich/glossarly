@@ -3,23 +3,14 @@
   "name": "Glossarly",
   "version": "1.0.0",
   "description": "Highlight and define business terms in web documents",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "scripting",
-    "identity",
-    "identity.email"
-  ],
+  "permissions": ["storage", "activeTab", "scripting", "identity"],
   "host_permissions": [
     "https://docs.google.com/*",
     "https://docs.googleapis.com/*"
   ],
   "oauth2": {
     "client_id": "278798043917-cb5rpqnf5prd447r7hdhlakohru17ci2.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/documents.readonly",
-      "https://www.googleapis.com/auth/drive.readonly"
-    ]
+    "scopes": ["https://www.googleapis.com/auth/documents.readonly"]
   },
   "action": {
     "default_popup": "src/popup/popup.html",
