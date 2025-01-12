@@ -18,11 +18,18 @@
 
 .glossarly-widget {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 9999;
-  font-family: Arial, sans-serif;
-  transform: translateX(-60px);
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: opacity 0.2s ease-in-out;
 }
 
 .glossarly-widget-icon {
@@ -125,4 +132,16 @@
 
 #addNewTerm:hover {
   background: #1976D2;
+}
+
+.glossarly-popup {
+  position: fixed;
+  z-index: 1001;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  min-width: 200px;
+  max-width: 300px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 } 
