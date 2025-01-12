@@ -3,6 +3,7 @@ class GoogleDocsHighlighter {
     this.highlightCanvases = new Map();
     this.documentContent = null;
     this.terms = {};
+    this.paragraphToCanvasMap = new Map();
     Logger.log("Initializing GoogleDocsHighlighter");
 
     // Load initial terms
@@ -92,17 +93,18 @@ class GoogleDocsHighlighter {
   }
 
   setupCanvasOverlays() {
-    const pages = document.querySelectorAll(".kix-page");
-    Logger.log("Setting up overlays for pages:", pages.length);
-    pages.forEach((page, index) => {
-      Logger.log(`Creating overlay for page ${index}`);
-      this.createOverlayForPage(page);
+    const docCanvases = document.querySelectorAll(".kix-canvas-tile-content");
+    Logger.log("Setting up overlays for canvases:", docCanvases.length);
+
+    docCanvases.forEach((docCanvas, index) => {
+      Logger.log(`Creating overlay for canvas ${index}`);
+      this.createOverlayForCanvas(docCanvas, index);
     });
   }
 
-  createOverlayForPage(page) {
-    const canvas = document.createElement("canvas");
-    canvas.style.cssText = `
+  createOverlayForCanvas(docCanvas, canvasIndex) {
+    const overlay = document.createElement("canvas");
+    overlay.style.cssText = `
       position: absolute;
       top: 0;
       left: 0;
@@ -110,29 +112,29 @@ class GoogleDocsHighlighter {
       z-index: 100;
     `;
 
-    const pageCanvas = page.querySelector("canvas");
-    if (pageCanvas) {
-      canvas.width = pageCanvas.width;
-      canvas.height = pageCanvas.height;
-      Logger.log("Created canvas overlay:", {
-        width: canvas.width,
-        height: canvas.height,
-        pageCanvas: pageCanvas,
-      });
-      page.appendChild(canvas);
-      this.highlightCanvases.set(page, canvas);
-    } else {
-      Logger.warn("No canvas found in page:", page);
-    }
+    const rect = docCanvas.getBoundingClientRect();
+    overlay.width = rect.width;
+    overlay.height = rect.height;
+    overlay.style.transform = docCanvas.style.transform;
+
+    Logger.log("Created canvas overlay:", {
+      canvasIndex,
+      width: overlay.width,
+      height: overlay.height,
+      transform: overlay.style.transform,
+    });
+
+    docCanvas.parentElement.appendChild(overlay);
+    this.highlightCanvases.set(canvasIndex, overlay);
   }
 
   observeCanvasChanges() {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         mutation.addedNodes.forEach((node) => {
-          if (node.classList?.contains("kix-page")) {
-            Logger.log("New page added:", node);
-            this.createOverlayForPage(node);
+          if (node.classList?.contains("kix-canvas-tile-content")) {
+            Logger.log("New canvas added:", node);
+            this.createOverlayForCanvas(node);
           }
         });
       });
@@ -195,37 +197,28 @@ class GoogleDocsHighlighter {
     }
 
     Logger.log("Starting term highlighting");
-    Logger.log("Active canvases:", this.highlightCanvases.size);
-
-    // Clear all canvases
-    this.highlightCanvases.forEach((canvas, page) => {
-      const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      Logger.log("Cleared canvas for page:", page);
-    });
+    this.clearAllHighlights();
 
     // Process each text block
-    this.documentContent.body.content.forEach((block, index) => {
+    this.documentContent.body.content.forEach((block, blockIndex) => {
       if (!block.paragraph?.elements) {
-        Logger.log(`Skipping block ${index} - no paragraph elements`);
+        Logger.log(`Skipping block ${blockIndex} - no paragraph elements`);
         return;
       }
 
-      Logger.log(`Processing block ${index}:`, block);
+      const canvasIndex = Math.floor(blockIndex / 2); // Approximate 2 paragraphs per canvas
+      this.paragraphToCanvasMap.set(blockIndex, canvasIndex);
 
-      block.paragraph.elements.forEach((element, elemIndex) => {
-        if (!element.textRun?.content) {
-          Logger.log(`Skipping element ${elemIndex} - no text content`);
-          return;
-        }
+      Logger.log(`Processing block ${blockIndex}:`, {
+        block,
+        canvasIndex,
+      });
+
+      block.paragraph.elements.forEach((element) => {
+        if (!element.textRun?.content) return;
 
         const text = element.textRun.content;
         const startIndex = element.startIndex;
-        Logger.log(`Processing text element:`, {
-          text,
-          startIndex,
-          length: text.length,
-        });
 
         Object.keys(this.terms).forEach((term) => {
           const regex = new RegExp(`\\b${term}\\b`, "gi");
@@ -234,71 +227,74 @@ class GoogleDocsHighlighter {
           while ((match = regex.exec(text))) {
             const termStart = startIndex + match.index;
             const termEnd = termStart + term.length;
-            Logger.log(`Found term "${term}":`, {
-              termStart,
-              termEnd,
-              matchIndex: match.index,
-              matchText: match[0],
-            });
 
-            this.drawUnderline(termStart, termEnd);
+            this.drawUnderline(termStart, termEnd, blockIndex);
           }
         });
       });
     });
   }
 
-  drawUnderline(startIndex, endIndex) {
-    const pages = Array.from(this.highlightCanvases.keys());
-    Logger.log("Looking for page for indices:", {
-      startIndex,
-      endIndex,
-      totalPages: pages.length,
+  clearAllHighlights() {
+    this.highlightCanvases.forEach((canvas) => {
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
+  }
 
-    const targetPage = pages.find((page) => {
-      const pageStart = parseInt(page.getAttribute("data-page-index")) * 1000;
-      const pageEnd = pageStart + 1000;
-      const isTarget = startIndex >= pageStart && endIndex <= pageEnd;
-      Logger.log("Checking page:", {
-        pageStart,
-        pageEnd,
-        isTarget,
-        pageIndex: page.getAttribute("data-page-index"),
-      });
-      return isTarget;
-    });
-
-    if (!targetPage) {
-      Logger.warn("No target page found for indices:", {
-        startIndex,
-        endIndex,
-      });
+  drawUnderline(startIndex, endIndex, paragraphIndex) {
+    const canvasIndex = this.paragraphToCanvasMap.get(paragraphIndex);
+    if (canvasIndex === undefined) {
+      Logger.warn("No canvas found for paragraph:", paragraphIndex);
       return;
     }
 
-    const canvas = this.highlightCanvases.get(targetPage);
-    const ctx = canvas.getContext("2d");
+    const overlay = this.highlightCanvases.get(canvasIndex);
+    if (!overlay) {
+      Logger.warn("No overlay found for canvas:", canvasIndex);
+      return;
+    }
 
-    // Calculate positions
-    const x1 = (startIndex % 1000) * (canvas.width / 1000);
-    const x2 = (endIndex % 1000) * (canvas.width / 1000);
-    const y = 20;
+    const ctx = overlay.getContext("2d");
+    const position = this.calculatePositionInCanvas(
+      startIndex,
+      endIndex,
+      paragraphIndex
+    );
 
     Logger.log("Drawing underline:", {
-      x1,
-      x2,
-      y,
-      canvasWidth: canvas.width,
-      canvasHeight: canvas.height,
+      paragraphIndex,
+      canvasIndex,
+      startIndex,
+      endIndex,
+      position,
     });
 
     ctx.beginPath();
     ctx.strokeStyle = "red";
     ctx.lineWidth = 2;
-    ctx.moveTo(x1, y);
-    ctx.lineTo(x2, y);
+    ctx.moveTo(position.x1, position.y);
+    ctx.lineTo(position.x2, position.y);
     ctx.stroke();
+  }
+
+  calculatePositionInCanvas(startIndex, endIndex, paragraphIndex) {
+    const overlay = this.highlightCanvases.get(
+      this.paragraphToCanvasMap.get(paragraphIndex)
+    );
+    const paragraphsPerCanvas = 2;
+    const paragraphHeight = overlay.height / paragraphsPerCanvas;
+
+    // Calculate y position based on paragraph position within canvas
+    const paragraphOffsetInCanvas = paragraphIndex % paragraphsPerCanvas;
+    const y = (paragraphOffsetInCanvas + 0.8) * paragraphHeight; // 0.8 to position near bottom of line
+
+    // Calculate x positions (approximate)
+    const charsPerLine = overlay.width / 8; // Assume 8px per character
+    const x1 = (startIndex % charsPerLine) * 8;
+    const x2 = (endIndex % charsPerLine) * 8;
+
+    return { x1, x2, y };
   }
 }
 
