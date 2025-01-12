@@ -3,8 +3,24 @@
   "name": "Glossarly",
   "version": "1.0.0",
   "description": "Highlight and define business terms in web documents",
-  "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://docs.google.com/*"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "identity",
+    "identity.email"
+  ],
+  "host_permissions": [
+    "https://docs.google.com/*",
+    "https://docs.googleapis.com/*"
+  ],
+  "oauth2": {
+    "client_id": "278798043917-cb5rpqnf5prd447r7hdhlakohru17ci2.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/documents.readonly",
+      "https://www.googleapis.com/auth/drive.readonly"
+    ]
+  },
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_icon": {
@@ -14,12 +30,13 @@
     }
   },
   "background": {
-    "service_worker": "src/background.js"
+    "service_worker": "src/background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/content.js"],
+      "js": ["src/utils/logger.js", "src/gdocs.js"],
       "css": ["styles/content.css"]
     }
   ],
