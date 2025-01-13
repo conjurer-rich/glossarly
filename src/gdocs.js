@@ -23,9 +23,6 @@ class GoogleDocsHighlighter {
 
     // Setup selection monitoring
     this.setupSelectionMonitoring();
-
-    // Add widget styles
-    this.addWidgetStyles();
   }
 
   async loadTerms() {
@@ -85,56 +82,6 @@ class GoogleDocsHighlighter {
         }
       }, 100);
     });
-  }
-
-  addWidgetStyles() {
-    const styles = document.createElement("style");
-    styles.textContent = `
-      .glossarly-widget {
-        position: fixed;
-        background: #1a73e8;
-        border: 2px solid #185abc;
-        border-radius: 4px;
-        padding: 0px 12px;
-        font-size: 16px;
-        color: white;
-        cursor: pointer;
-        z-index: 9999;
-        box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3);
-        font-family: 'Google Sans', Roboto, Arial, sans-serif;
-      }
-
-      .glossarly-widget:hover {
-        background: #fff;
-        box-shadow: 0 2px 6px rgba(60, 64, 67, 0.3);
-      }
-
-      .glossarly-popup {
-        position: absolute;
-        background: white;
-        border-radius: 8px;
-        padding: 16px;
-        min-width: 200px;
-        max-width: 300px;
-        box-shadow: 0 4px 6px rgba(60, 64, 67, 0.3);
-        z-index: 1001;
-        font-family: 'Google Sans', Roboto, Arial, sans-serif;
-      }
-
-      .glossarly-popup .term {
-        font-weight: 500;
-        font-size: 14px;
-        color: #1a73e8;
-        margin-bottom: 8px;
-      }
-
-      .glossarly-popup .definition {
-        font-size: 13px;
-        color: #3c4043;
-        line-height: 1.4;
-      }
-    `;
-    document.head.appendChild(styles);
   }
 
   setupSelectionMonitoring() {
@@ -387,32 +334,25 @@ class GoogleDocsHighlighter {
     // Remove any existing widget first
     this.removeSelectionWidget();
 
-    Logger.log("Creating widget with terms:", terms);
+    Logger.log("Creating selection widget with terms:", terms);
 
     const widget = document.createElement("div");
-    widget.className = "glossarly-widget";
-    widget.textContent = "📚";
+    widget.className =
+      "glossarly-selection-widget glossarly-selection-widget-left";
+    widget.textContent = "?";
 
     // Position widget under the selection
     const left = rect.left; // start of selection
     const top = Math.max(rect.top + window.scrollY - 4, 100); // Keep some minimum distance from top
-    widget.style.border = "none";
     widget.style.top = `${top}px`;
-    widget.style.position = "fixed"; // Use fixed positioning to stay on screen
-    widget.style.width = "16px";
-    widget.style.height = rect.height + "px";
     widget.style.left = `${left - 40}px`;
-    widget.style.zIndex = "9999";
-    widget.style.padding = "0px 0px";
-    widget.style.borderRadius = "4px";
 
     Logger.log("Widget positioned at:", { left, top });
 
     // Create popup
     const popup = document.createElement("div");
-    popup.className = "glossarly-popup";
+    popup.className = "glossarly-selection-popup";
     popup.style.display = "none";
-    popup.style.position = "fixed"; // Use fixed positioning to stay on screen
 
     // Add terms to popup
     terms.forEach(({ term, definition }) => {
