@@ -232,14 +232,10 @@ class GoogleDocsHighlighter {
       })
       .map(([term, definition]) => ({ term, definition }));
 
-    if (foundTerms.length === 0) {
-      Logger.log("No matching terms found");
-      this.removeSelectionWidget();
-      return;
+    // Draw underline only if terms were found
+    if (foundTerms.length > 0) {
+      this.drawTermUnderlines(text, foundTerms, rect);
     }
-
-    // Draw underline for each found term
-    this.drawTermUnderlines(text, foundTerms, rect);
 
     // Show widget with found terms
     this.createSelectionWidget(rect, foundTerms);
@@ -339,40 +335,83 @@ class GoogleDocsHighlighter {
     const widget = document.createElement("div");
     widget.className =
       "glossarly-selection-widget glossarly-selection-widget-left";
-    widget.textContent = "?";
+    widget.classList.add(terms.length > 0 ? "has-terms" : "no-terms");
+    widget.textContent = terms.length > 0 ? "?" : "!";
 
-    // Position widget under the selection
-    const left = rect.left; // start of selection
-    const top = Math.max(rect.top + window.scrollY - 4, 100); // Keep some minimum distance from top
+    // Get the document container and its left margin
+    const rulerIndent = document.querySelector(".docs-ruler-indent-start");
+    let pageMargin = 72; // Default Google Docs margin
+
+    if (rulerIndent) {
+      const rulerRect = rulerIndent.getBoundingClientRect();
+      pageMargin = rulerRect.left;
+      Logger.log("Found ruler indent:", { left: rulerRect.left });
+    } else {
+      Logger.warn("Could not find ruler indent, using default margin");
+    }
+
+    // Position widget just left of the page margin
+    const left = pageMargin - 40;
+    const top = Math.max(rect.top + window.scrollY - 4, 100);
     widget.style.top = `${top}px`;
-    widget.style.left = `${left - 40}px`;
+    widget.style.left = `${left}px`;
 
-    Logger.log("Widget positioned at:", { left, top });
+    Logger.log("Widget positioned at:", {
+      left,
+      top,
+      pageMargin,
+      hasRulerIndent: !!rulerIndent,
+    });
 
-    // Create popup
+    // Create popup for both cases
     const popup = document.createElement("div");
     popup.className = "glossarly-selection-popup";
     popup.style.display = "none";
 
-    // Add terms to popup
-    terms.forEach(({ term, definition }) => {
-      const termDiv = document.createElement("div");
-      termDiv.className = "term";
-      termDiv.textContent = term;
+    if (terms.length > 0) {
+      // Add terms to popup
+      terms.forEach(({ term, definition }) => {
+        const termDiv = document.createElement("div");
+        termDiv.className = "term";
+        termDiv.textContent = term;
 
-      const definitionDiv = document.createElement("div");
-      definitionDiv.className = "definition";
-      definitionDiv.textContent = definition;
+        const definitionDiv = document.createElement("div");
+        definitionDiv.className = "definition";
+        definitionDiv.textContent = definition;
 
-      popup.appendChild(termDiv);
-      popup.appendChild(definitionDiv);
-    });
+        popup.appendChild(termDiv);
+        popup.appendChild(definitionDiv);
+      });
+    } else {
+      // Create "Add term" popup content
+      const addTermDiv = document.createElement("div");
+      addTermDiv.className = "add-term-prompt";
 
-    // Show/hide popup on hover
+      const promptText = document.createElement("div");
+      promptText.className = "prompt-text";
+      promptText.textContent = "No terms found in selection.";
+
+      const addButton = document.createElement("button");
+      addButton.className = "glossarly-button";
+      addButton.textContent = "Add as new term";
+      addButton.addEventListener("click", () => {
+        // Open the extension popup
+        chrome.runtime.sendMessage({
+          type: "openPopup",
+          prefilledText: text, // You'll need to pass the selected text as a parameter to createSelectionWidget
+        });
+      });
+
+      addTermDiv.appendChild(promptText);
+      addTermDiv.appendChild(addButton);
+      popup.appendChild(addTermDiv);
+    }
+
+    // Show/hide popup on hover (for both cases)
     widget.addEventListener("mouseenter", () => {
       popup.style.display = "block";
-      popup.style.left = `${left - 10}px`;
-      popup.style.top = `${top + 36}px`;
+      popup.style.left = `${left + 36}px`;
+      popup.style.top = `${top}px`;
     });
 
     widget.addEventListener("mouseleave", (e) => {
@@ -384,20 +423,10 @@ class GoogleDocsHighlighter {
       popup.style.display = "none";
     });
 
-    // Add selection change listener to hide widget when selection is cleared
-    document.addEventListener("selectionchange", () => {
-      setTimeout(() => {
-        const selection = document.querySelector(".kix-canvas-tile-selection");
-        if (!selection) {
-          this.removeSelectionWidget();
-        }
-      }, 100);
-    });
+    document.body.appendChild(popup);
+    this.selectionWidget = { widget, popup };
 
     document.body.appendChild(widget);
-    document.body.appendChild(popup);
-
-    this.selectionWidget = { widget, popup };
   }
 
   removeSelectionWidget() {

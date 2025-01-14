@@ -2,6 +2,8 @@
   /* Brand Colors */
   --glossarly-green: #9ED5B8;
   --glossarly-green-dark: #8AC7A7;
+  --glossarly-orange: #E17055;
+  --glossarly-orange-dark: #D15F45;
   --glossarly-text: #2D3436;
   --glossarly-text-light: #606D75;
   --glossarly-background: #FFFFFF;
@@ -125,16 +127,21 @@
 
 /* Left-side selection widget specific styles */
 .glossarly-selection-widget-left {
-  width: 16px;
+  width: 24px;
+  height: 24px;
   border: none;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--glossarly-green);
+  color: var(--glossarly-text);
+  font-weight: bold;
 }
 
 .glossarly-selection-widget:hover {
   background: var(--glossarly-green-dark);
+  color: white;
 }
 
 /* Selection Popup */
@@ -217,4 +224,43 @@
   background: #FFEAE5;
   border-radius: 4px;
   margin: 8px 0;
+}
+
+.glossarly-selection-widget.has-terms {
+  background: var(--glossarly-green);
+}
+
+.glossarly-selection-widget.has-terms:hover {
+  background: var(--glossarly-green-dark);
+}
+
+.glossarly-selection-widget.no-terms {
+  background: var(--glossarly-orange);
+}
+
+.glossarly-selection-widget.no-terms:hover {
+  background: var(--glossarly-orange-dark);
+}
+
+/* Add Term Prompt */
+.add-term-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px;
+}
+
+.prompt-text {
+  color: var(--glossarly-text-light);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.add-term-prompt .glossarly-button {
+  background: var(--glossarly-orange);
+  width: 100%;
+}
+
+.add-term-prompt .glossarly-button:hover {
+  background: var(--glossarly-orange-dark);
 } 
