@@ -415,12 +415,29 @@ class GoogleDocsHighlighter {
     });
 
     widget.addEventListener("mouseleave", (e) => {
-      if (e.relatedTarget === popup) return;
-      popup.style.display = "none";
+      // Check if moving to popup or its children
+      if (popup.contains(e.relatedTarget) || e.relatedTarget === popup) return;
+
+      // Give time to move to popup
+      setTimeout(() => {
+        // Only hide if mouse isn't over popup or widget
+        if (!popup.matches(":hover") && !widget.matches(":hover")) {
+          popup.style.display = "none";
+        }
+      }, 100);
     });
 
-    popup.addEventListener("mouseleave", () => {
-      popup.style.display = "none";
+    popup.addEventListener("mouseleave", (e) => {
+      // Check if moving back to widget
+      if (e.relatedTarget === widget) return;
+
+      // Give time to move back to widget
+      setTimeout(() => {
+        // Only hide if mouse isn't over popup or widget
+        if (!popup.matches(":hover") && !widget.matches(":hover")) {
+          popup.style.display = "none";
+        }
+      }, 100);
     });
 
     document.body.appendChild(popup);
