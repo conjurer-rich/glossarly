@@ -1,3 +1,30 @@
+// Define popup container class
+class GlossarlyPopupContainer {
+  constructor() {
+    this.container = document.createElement("div");
+    this.container.id = "glossarly-popups";
+
+    // Create shadow root
+    this.root = this.container.attachShadow({ mode: "open" });
+  }
+
+  // Method to set content
+  setContent(content, styles) {
+    this.root.innerHTML = "";
+
+    const style = document.createElement("style");
+    style.textContent = styles;
+    this.root.appendChild(style);
+
+    this.root.appendChild(content);
+  }
+
+  // Method to append to document
+  appendTo(parent) {
+    parent.appendChild(this.container);
+  }
+}
+
 class GoogleDocsHighlighter {
   constructor() {
     this.terms = {};
@@ -41,6 +68,11 @@ class GoogleDocsHighlighter {
     try {
       Logger.log("Starting initialization");
       await this.waitForGoogleDocs();
+
+      // Create popup container
+      this.popupContainer = new GlossarlyPopupContainer();
+      this.popupContainer.appendTo(document.body);
+
       this.createMainWidget();
     } catch (error) {
       Logger.error("Error during initialization:", error);
@@ -491,7 +523,7 @@ class GoogleDocsHighlighter {
     const termCount = Object.keys(this.terms).length;
     viewTermsButton.textContent = termCount;
     viewTermsButton.addEventListener("click", () => {
-      chrome.runtime.sendMessage({ type: "openSidePanel" });
+      this.createSidePanel(this.terms);
     });
 
     expandedContent.appendChild(powerButton);
@@ -523,6 +555,271 @@ class GoogleDocsHighlighter {
       powerButton.classList.toggle("off", !settings.enabled);
       mainWidget.classList.toggle("disabled", !settings.enabled);
     });
+  }
+
+  createSidePanel(terms) {
+    // Remove existing panel if any
+    this.removeSidePanel();
+
+    // Find the Google Docs sidebar container
+    const sidebarContainer = document.querySelector(
+      ".docs-full-height-sidebar-placeholder"
+    );
+    if (!sidebarContainer) {
+      Logger.error("Could not find sidebar container");
+      return;
+    }
+
+    // Add expanded class to show sidebar
+    sidebarContainer.classList.add("expanded");
+
+    const styles = `
+      .glossarly-side-panel {
+        background: white;
+        height: 100%;
+        width: 400px;
+        display: flex;
+        flex-direction: column;
+        font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      }
+
+      .glossarly-panel-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(45, 52, 54, 0.1);
+      }
+
+      .glossarly-panel-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .glossarly-panel-logo {
+        height: 32px;
+      }
+
+      .glossarly-panel-close {
+        font-size: 24px;
+        cursor: pointer;
+        color: #606D75;
+      }
+
+      .glossarly-panel-subtitle {
+        color: #9ED5B8;
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .glossarly-panel-terms {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+      }
+
+      .glossarly-panel-term-item {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(45, 52, 54, 0.1);
+      }
+
+      .term-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .term-number {
+        width: 32px;
+        height: 32px;
+        background: #9ED5B8;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .term-title {
+        font-size: 20px;
+        font-weight: bold;
+        flex: 1;
+      }
+
+      .term-badges {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .term-badge {
+        background: #4A4A4A;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .term-edit {
+        background: #9ED5B8;
+        color: white;
+        border: none;
+        padding: 4px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .term-full-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 8px;
+      }
+
+      .term-description {
+        color: #2D3436;
+        margin-bottom: 12px;
+        line-height: 1.5;
+      }
+
+      .term-learn-more {
+        color: #9ED5B8;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 12px;
+      }
+
+      .term-meta {
+        color: #606D75;
+        font-size: 13px;
+      }
+
+      .term-author {
+        font-weight: 500;
+      }
+
+      .term-date {
+        color: #606D75;
+      }
+
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #F8FAF9;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #9ED5B8;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #8AC7A7;
+      }
+    `;
+
+    // Create our panel container
+    const panel = document.createElement("div");
+    panel.className = "docs-sidebar glossarly-side-panel";
+    panel.style.position = "absolute";
+    panel.style.top = "0";
+    panel.style.right = "0";
+    panel.style.bottom = "0";
+    panel.style.width = "400px";
+    panel.style.backgroundColor = "white";
+
+    // Create header
+    const header = document.createElement("div");
+    header.className = "glossarly-panel-header";
+
+    const title = document.createElement("div");
+    title.className = "glossarly-panel-title";
+    title.innerHTML = `
+      <img src="${chrome.runtime.getURL(
+        "icons/favicon-48x48.png"
+      )}" alt="Glossarly" class="glossarly-panel-logo">
+      <div class="glossarly-panel-close">×</div>
+    `;
+
+    const subtitle = document.createElement("div");
+    subtitle.className = "glossarly-panel-subtitle";
+    subtitle.textContent = `${
+      Object.keys(terms).length
+    } definitions found for ${this.selectedTerm || "document"}`;
+
+    header.appendChild(title);
+    header.appendChild(subtitle);
+
+    // Create terms list
+    const termsList = document.createElement("div");
+    termsList.className = "glossarly-panel-terms";
+
+    Object.entries(terms).forEach(([term, definition], index) => {
+      const termItem = document.createElement("div");
+      termItem.className = "glossarly-panel-term-item";
+
+      termItem.innerHTML = `
+        <div class="term-header">
+          <div class="term-number">${index + 1}</div>
+          <div class="term-title">${term}</div>
+          <div class="term-badges">
+            <span class="term-badge">${definition.team || "General"}</span>
+            <button class="term-edit">Edit</button>
+          </div>
+        </div>
+        <div class="term-full-title">${definition.fullTitle || term}</div>
+        <div class="term-description">${
+          definition.description || definition
+        }</div>
+        <a href="#" class="term-learn-more">Learn more</a>
+        <div class="term-meta">
+          Definition added by <span class="term-author">${
+            definition.author || "Unknown"
+          }</span>
+          <span class="term-date">${
+            definition.date || new Date().toLocaleDateString()
+          }</span>
+        </div>
+      `;
+
+      termsList.appendChild(termItem);
+    });
+
+    panel.appendChild(header);
+    panel.appendChild(termsList);
+
+    // Add close handler
+    const closeButton = title.querySelector(".glossarly-panel-close");
+    closeButton.addEventListener("click", () => this.removeSidePanel());
+
+    this.popupContainer.setContent(panel, styles);
+    this.sidePanel = panel;
+    this.sidebarContainer = sidebarContainer;
+
+    // Force Google Docs to recognize the sidebar
+    window.dispatchEvent(new Event("resize"));
+  }
+
+  removeSidePanel() {
+    if (this.sidePanel) {
+      // Remove expanded class to hide sidebar
+      this.sidebarContainer.classList.remove("expanded");
+      // Clear popup container content
+      this.popupContainer.setContent(document.createElement("div"), "");
+      this.sidePanel = null;
+      this.sidebarContainer = null;
+
+      // Force Google Docs to update layout
+      window.dispatchEvent(new Event("resize"));
+    }
   }
 }
 
