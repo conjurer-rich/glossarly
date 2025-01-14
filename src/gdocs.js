@@ -41,6 +41,7 @@ class GoogleDocsHighlighter {
     try {
       Logger.log("Starting initialization");
       await this.waitForGoogleDocs();
+      this.createMainWidget();
     } catch (error) {
       Logger.error("Error during initialization:", error);
     }
@@ -458,6 +459,70 @@ class GoogleDocsHighlighter {
     if (underlineSvg) {
       underlineSvg.remove();
     }
+  }
+
+  createMainWidget() {
+    const mainWidget = document.createElement("div");
+    mainWidget.className = "glossarly-main-widget";
+
+    // Create logo container
+    const logoContainer = document.createElement("div");
+    logoContainer.className = "glossarly-logo-container";
+    const logo = document.createElement("img");
+    logo.src = chrome.runtime.getURL("icons/favicon-48x48.png");
+    logo.alt = "Glossarly";
+    logoContainer.appendChild(logo);
+
+    // Create expanded content
+    const expandedContent = document.createElement("div");
+    expandedContent.className = "glossarly-expanded-content";
+
+    // Add power button
+    const powerButton = document.createElement("button");
+    powerButton.className = "glossarly-power-button";
+    powerButton.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16">
+      <path fill="currentColor" d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+    </svg>`;
+    powerButton.title = "Toggle Glossarly";
+
+    // Add view all terms button
+    const viewTermsButton = document.createElement("button");
+    viewTermsButton.className = "glossarly-terms-count";
+    const termCount = Object.keys(this.terms).length;
+    viewTermsButton.textContent = termCount;
+    viewTermsButton.addEventListener("click", () => {
+      chrome.runtime.sendMessage({ type: "openSidePanel" });
+    });
+
+    expandedContent.appendChild(powerButton);
+    expandedContent.appendChild(viewTermsButton);
+
+    mainWidget.appendChild(logoContainer);
+    mainWidget.appendChild(expandedContent);
+
+    document.body.appendChild(mainWidget);
+
+    // Store reference for later use
+    this.mainWidget = mainWidget;
+
+    // Update count when terms change
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.type === "termsUpdated") {
+        const newCount = Object.keys(message.terms).length;
+        viewTermsButton.textContent = newCount;
+      }
+    });
+
+    // Handle power button clicks
+    powerButton.addEventListener("click", async () => {
+      const storage = await chrome.storage.local.get("settings");
+      const settings = storage.settings || { enabled: true };
+      settings.enabled = !settings.enabled;
+      await chrome.storage.local.set({ settings });
+
+      powerButton.classList.toggle("off", !settings.enabled);
+      mainWidget.classList.toggle("disabled", !settings.enabled);
+    });
   }
 }
 

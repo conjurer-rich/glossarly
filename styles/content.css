@@ -263,4 +263,95 @@
 
 .add-term-prompt .glossarly-button:hover {
   background: var(--glossarly-orange-dark);
+}
+
+/* Main Widget */
+.glossarly-main-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--glossarly-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--glossarly-shadow);
+  display: flex;
+  align-items: center;
+  z-index: 9999;
+  width: 40px;
+  overflow: hidden;
+  transition: width 0.3s ease;
+}
+
+.glossarly-main-widget:hover {
+  width: 120px;
+}
+
+.glossarly-logo-container {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  padding: 8px;
+}
+
+.glossarly-logo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.glossarly-expanded-content {
+  display: flex;
+  gap: 8px;
+  padding-right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.glossarly-main-widget:hover .glossarly-expanded-content {
+  opacity: 1;
+}
+
+.glossarly-power-button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: none;
+  color: var(--glossarly-green);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.glossarly-power-button:hover {
+  background: var(--glossarly-hover-bg);
+}
+
+.glossarly-power-button.off {
+  color: var(--glossarly-text-light);
+}
+
+.glossarly-main-widget.disabled {
+  opacity: 0.7;
+}
+
+.glossarly-terms-count {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--glossarly-green);
+  color: var(--glossarly-text);
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  transform: scale(0.6);
+}
+
+.glossarly-terms-count:hover {
+  background: var(--glossarly-green-dark);
+  transform: scale(0.65);
 } 
