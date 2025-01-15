@@ -3,8 +3,11 @@
   "name": "Glossarly",
   "version": "1.0.0",
   "description": "Highlight and define business terms in web documents",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "sidePanel"],
   "host_permissions": ["https://docs.google.com/*"],
+  "side_panel": {
+    "default_path": "src/sidepanel/sidepanel.html"
+  },
   "action": {
     "default_popup": "src/popup/popup.html",
     "default_icon": {
@@ -29,7 +32,8 @@
       "js": ["src/utils/logger.js", "src/gdocs.js"],
       "css": ["styles/content.css"],
       "all_Frames": false,
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "type": "module"
     }
   ],
   "icons": {

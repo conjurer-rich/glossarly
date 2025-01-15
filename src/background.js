@@ -14,11 +14,22 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 // Handle messages from content script and popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === "getSettings") {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "getSettings") {
     chrome.storage.local.get("settings", (data) => {
       sendResponse(data.settings);
     });
     return true;
+  } else if (message.type === "updateTerms") {
+    // Handle terms update
+  } else if (message.type === "openSidePanel") {
+    chrome.sidePanel.setOptions({
+      tabId: sender.tab.id,
+      path: "src/sidepanel/sidepanel.html",
+      enabled: true,
+    });
+    chrome.sidePanel.open({ tabId: sender.tab.id });
+  } else if (message.type === "closeSidePanel") {
+    chrome.sidePanel.setOptions({ tabId: sender.tab.id, enabled: false });
   }
 });
