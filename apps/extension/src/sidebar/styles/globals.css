@@ -1,0 +1,299 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #1b2a4a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.glossarly-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: white;
+}
+
+.glossarly-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e4e8;
+  background: linear-gradient(135deg, #0f7b6c 0%, #0a5a50 100%);
+  color: white;
+}
+
+.glossarly-header h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.glossarly-header p {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.glossarly-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.glossarly-term-panel {
+  flex: 0 0 45%;
+  border-right: 1px solid #e0e4e8;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.glossarly-term-panel-title {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f7b6c;
+  border-bottom: 1px solid #e0e4e8;
+  flex-shrink: 0;
+}
+
+.glossarly-term-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.glossarly-empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.glossarly-term-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e0e4e8;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  text-align: left;
+}
+
+.glossarly-term-badge:hover {
+  background: #e8f5f3;
+  border-color: #0f7b6c;
+}
+
+.glossarly-term-badge.active {
+  background: #0f7b6c;
+  color: white;
+  border-color: #0f7b6c;
+}
+
+.glossarly-term-text {
+  flex: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glossarly-confidence-indicator {
+  display: block;
+  width: 20px;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.glossarly-term-badge.active .glossarly-confidence-indicator {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.glossarly-confidence-indicator::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #4caf50;
+  border-radius: 2px;
+}
+
+.glossarly-definition-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.glossarly-definition-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.glossarly-definition-card.empty,
+.glossarly-definition-card.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  text-align: center;
+}
+
+.glossarly-definition-card.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.glossarly-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e0e4e8;
+  border-top-color: #0f7b6c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.glossarly-definition-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.glossarly-definition-term {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1b2a4a;
+}
+
+.glossarly-category-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #e8f5f3;
+  color: #0f7b6c;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.glossarly-definition-text {
+  font-size: 14px;
+  color: #2c3e50;
+  line-height: 1.6;
+}
+
+.glossarly-example {
+  padding: 12px;
+  background: #f8f9fa;
+  border-left: 3px solid #0f7b6c;
+  border-radius: 3px;
+}
+
+.glossarly-example-label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #0f7b6c;
+  margin-bottom: 4px;
+}
+
+.glossarly-example-text {
+  font-size: 13px;
+  font-style: italic;
+  color: #2c3e50;
+}
+
+.glossarly-confidence {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.glossarly-confidence label {
+  font-weight: 600;
+  font-size: 12px;
+  color: #0f7b6c;
+}
+
+.glossarly-confidence-bar {
+  height: 6px;
+  background: #e0e4e8;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.glossarly-confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0f7b6c 0%, #4caf50 100%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.glossarly-confidence-value {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.glossarly-save-button {
+  padding: 8px 16px;
+  background: #0f7b6c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+
+.glossarly-save-button:hover {
+  background: #0a5a50;
+}
+
+.glossarly-save-button:active {
+  transform: scale(0.98);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d0d7df;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0f7b6c;
+}
