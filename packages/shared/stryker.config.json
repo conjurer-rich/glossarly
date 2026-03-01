@@ -1,0 +1,22 @@
+{
+  "$schema": "https://raw.githubusercontent.com/stryker-mutator/stryker/master/packages/core/schema/stryker-schema.json",
+  "testRunner": "jest",
+  "plugins": [
+    "@stryker-mutator/jest-runner"
+  ],
+  "inPlace": true,
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/**/*.ts",
+    "!src/**/__tests__/**",
+    "!src/**/index.ts"
+  ],
+  "reporters": ["clear-text", "progress"],
+  "thresholds": {
+    "high": 90,
+    "low": 80,
+    "break": 70
+  },
+  "timeoutMS": 10000,
+  "concurrency": 2
+}
