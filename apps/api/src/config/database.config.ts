@@ -11,7 +11,7 @@ export class DatabaseConfig {
   getPool(): Pool {
     if (!this.pool) {
       const databaseUrl = this.configService.get<string>('DATABASE_URL');
-      
+
       if (!databaseUrl) {
         throw new Error('DATABASE_URL environment variable is not set');
       }
@@ -36,7 +36,7 @@ export const databaseProvider = {
   provide: 'DATABASE_POOL',
   useFactory: (configService: ConfigService) => {
     const databaseUrl = configService.get<string>('DATABASE_URL');
-    
+
     if (!databaseUrl) {
       throw new Error('DATABASE_URL environment variable is not set');
     }

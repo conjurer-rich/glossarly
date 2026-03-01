@@ -11,7 +11,7 @@ export class CacheConfig {
   getClient(): Redis {
     if (!this.client) {
       const redisUrl = this.configService.get<string>('REDIS_URL');
-      
+
       if (!redisUrl) {
         throw new Error('REDIS_URL environment variable is not set');
       }
@@ -34,7 +34,7 @@ export const cacheProvider = {
   provide: 'REDIS_CLIENT',
   useFactory: (configService: ConfigService) => {
     const redisUrl = configService.get<string>('REDIS_URL');
-    
+
     if (!redisUrl) {
       throw new Error('REDIS_URL environment variable is not set');
     }
