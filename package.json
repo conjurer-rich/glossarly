@@ -1,0 +1,23 @@
+{
+  "name": "glossarly",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "dev": "bash scripts/ensure-services.sh && turbo run dev",
+    "dev:no-docker": "turbo run dev",
+    "services:up": "docker compose -f apps/api/docker-compose.yml up -d",
+    "services:down": "docker compose -f apps/api/docker-compose.yml down",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "test:mutate": "turbo run test:mutate"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "^9.6.0",
+    "@stryker-mutator/jest-runner": "^9.6.0",
+    "@stryker-mutator/typescript-checker": "^9.6.0",
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "@glossarly/shared": ["../../packages/shared/src"],
+      "@glossarly/shared/*": ["../../packages/shared/src/*"],
+      "@glossarly/domain": ["../../packages/domain/src"],
+      "@glossarly/domain/*": ["../../packages/domain/src/*"],
+      "@glossarly/infra-adapters": ["../../packages/infra-adapters/src"],
+      "@glossarly/infra-adapters/*": ["../../packages/infra-adapters/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../../packages/shared" },
+    { "path": "../../packages/domain" },
+    { "path": "../../packages/infra-adapters" }
+  ]
+}

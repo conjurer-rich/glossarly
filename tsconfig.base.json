@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@glossarly/shared": ["../../packages/shared/src"],
+      "@glossarly/shared/*": ["../../packages/shared/src/*"],
+      "@glossarly/domain": ["../../packages/domain/src"],
+      "@glossarly/domain/*": ["../../packages/domain/src/*"],
+      "@glossarly/infra-adapters": ["../../packages/infra-adapters/src"],
+      "@glossarly/infra-adapters/*": ["../../packages/infra-adapters/src/*"],
+      "@glossarly/testing": ["../../packages/testing/src"],
+      "@glossarly/testing/*": ["../../packages/testing/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

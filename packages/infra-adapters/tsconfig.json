@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@glossarly/shared": ["../shared/src"],
+      "@glossarly/shared/*": ["../shared/src/*"],
+      "@glossarly/domain": ["../domain/src"],
+      "@glossarly/domain/*": ["../domain/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"],
+  "references": [
+    { "path": "../shared" },
+    { "path": "../domain" }
+  ]
+}
